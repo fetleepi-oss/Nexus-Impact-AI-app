@@ -69,12 +69,17 @@ function MainApp() {
   const [historyItems, setHistoryItems] = useState<StoredHistoryItem[]>([]);
   const [historyRefreshKey, setHistoryRefreshKey] = useState(0);
   const [paywallReason, setPaywallReason] = useState<string | null>(null);
-
+const [offerings, setOfferings] = useState<any>(null);
   // Check onboarding status and load AsyncStorage history
   useEffect(() => {
     async function initApp() {
       // Check onboarding
-      try {
+       try {
+  const offerings = await Purchases.getOfferings();
+  setOfferings(offerings);
+} catch (e) {
+  console.error("Error fetching offerings", e);
+}
         const completed = await AsyncStorage.getItem(ONBOARDING_KEY);
         if (!completed) {
           setShowOnboarding(true);
