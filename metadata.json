@@ -1,0 +1,6 @@
+{
+  "name": "Nexus Impact AI",
+  "description": "Nexus Impact AI – Agents for social impact. Specialized AI agents for research, grant proposals, humanitarian relief, human rights, and public health.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

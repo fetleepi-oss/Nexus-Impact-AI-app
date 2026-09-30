@@ -1,26 +1,17 @@
-# Nexus Impact AI
+# Nexus Impact AI (Mobile)
 
 > Specialized AI agents for social impact, humanitarian relief, and evidence-based development.
 
 **Built for RevenueCat Shipaton 2026 (Next Gen Award)**
 
-The Expo app is in the `/mobile` folder.
-
 > **Important**: This app must run as a **development build**, not Expo Go, because RevenueCat (`react-native-purchases`) requires native code compiled into the application binary.
 
 ---
 
-## Quick Start (Expo Mobile App)
+## Quick Start
 
-The complete Expo React Native application is located in the `/mobile` folder.
-
-### 1. Navigate to the mobile folder
-```bash
-cd mobile
-```
-
-### 2. Install Dependencies
-Install all required packages declared in `mobile/package.json` with a single combined command:
+### 1. Install Dependencies
+Install all required packages declared in `package.json` with a single combined command:
 ```bash
 npx expo install expo-router expo-linking expo-constants expo-status-bar react-native-safe-area-context react-native-screens @react-native-async-storage/async-storage lucide-react-native react-native-purchases react-native-purchases-ui expo-sharing expo-print expo-haptics expo-clipboard react-native-svg expo-dev-client
 ```
@@ -31,8 +22,8 @@ npx expo install expo-router expo-linking expo-constants expo-status-bar react-n
 > ```
 > to automatically align all package versions with Expo SDK 52.
 
-### 3. Configure Environment Variables
-Copy `.env.example` to `.env` inside the `mobile` folder and supply your test keys:
+### 2. Configure Environment Variables
+Copy `.env.example` to `.env` and supply your test keys:
 ```bash
 cp .env.example .env
 ```
@@ -48,7 +39,7 @@ EXPO_PUBLIC_GEMINI_KEY=YOUR_GEMINI_API_KEY
 # EXPO_PUBLIC_API_URL=https://api.nexusimpact.ai/v1/synthesize
 ```
 
-### 4. Run Development Build (Not Expo Go)
+### 3. Run Development Build (Not Expo Go)
 RevenueCat requires native code, so run with the Expo development client:
 ```bash
 # For local Android emulator or connected device:
@@ -58,7 +49,7 @@ npx expo run:android
 npx expo start --dev-client
 ```
 
-### 5. Build for Android with EAS (Development Build)
+### 4. Build for Android with EAS (Development Build)
 ```bash
 npm install -g eas-cli
 eas login
@@ -73,7 +64,7 @@ eas build --profile development --platform android
 Follow these steps to test the monetization flow end-to-end:
 
 1. **Obtain Test Store Key**: In your RevenueCat dashboard, create an app using the **Test Store** option, or copy the Test Store Public API Key (starts with `test_...`).
-2. **Add Key to `.env`**: Set `EXPO_PUBLIC_REVENUECAT_API_KEY=test_...` in `mobile/.env`.
+2. **Add Key to `.env`**: Set `EXPO_PUBLIC_REVENUECAT_API_KEY=test_...` in `.env`.
 3. **Configure Products & Offering in RevenueCat**:
    - Ensure an offering named `default` is configured.
    - Attach monthly (`nexus_pro_monthly`) and annual (`nexus_pro_annual`) packages to the `default` offering.
@@ -115,48 +106,6 @@ Follow these steps to test the monetization flow end-to-end:
 - **Free Tier**: Access to core agents (*Research*, *Humanitarian*, *Public Health*, *Knowledge Base*), capped at **3 generations per day** tracked in `AsyncStorage` (resets daily at midnight), plus Copy button.
 - **Pro Tier**: Entitlement identifier `"pro"`, monthly (`nexus_pro_monthly`, $9.99/mo) and annual (`nexus_pro_annual`, $79.99/yr) packages from `"default"` offering. Unlocks *Grant Proposal*, *Human Rights*, *Women's Health*, unlimited generations, and formatted PDF export (`expo-print` + `expo-sharing`).
 - **Gating UX**: Tapping locked agent cards or reaching the 3/3 daily limit redirects to the Pro paywall with contextual explanations (e.g. `"Unlock Grant Proposal with Nexus Pro"`).
-
----
-
-## Repository Structure
-
-```text
-nexus-impact-ai/
-├── README.md               # Repository root README (The Expo app is in the /mobile folder)
-├── LICENSE                 # MIT License (detected by GitHub)
-├── vercel.json             # Vercel SPA deployment configuration
-├── metadata.json           # AI Studio applet configuration
-├── index.html              # Web preview entry
-├── src/                    # Web interactive preview application
-└── mobile/                 # Real Expo React Native application
-    ├── app/                # Expo Router 4 app directory
-    │   ├── _layout.tsx     # Root stack & PurchasesProvider
-    │   ├── onboarding.tsx  # Social impact onboarding screen
-    │   ├── (tabs)/         # 4-Tab navigation (Agents, History, Pro, Settings)
-    │   │   ├── _layout.tsx
-    │   │   ├── index.tsx   # Home screen (2-column agent grid & daily counter)
-    │   │   ├── history.tsx # AsyncStorage past syntheses
-    │   │   ├── pro.tsx     # Nexus Pro paywall (default offering, Subscribe, Restore)
-    │   │   └── settings.tsx# Settings & zero-telemetry notice
-    │   └── agent/[id].tsx  # Dynamic agent screen with PDF export & copy
-    ├── assets/
-    │   └── README.txt      # Guide for app icon and splash screen assets
-    ├── src/
-    │   ├── data/agents.ts  # 7 agents & systemPrompt configurations
-    │   ├── lib/ai.ts       # Gemini REST API (gemini-2.5-flash) synthesis
-    │   ├── lib/limits.ts   # Daily 3-generation counter & gating
-    │   ├── lib/purchases.tsx# RevenueCat integration (guarded) & useIsPro() hook
-    │   └── theme/colors.ts # Deep navy & teal theme palette
-    ├── package.json        # Expo SDK 52 dependencies (includes react-native-svg & expo-dev-client)
-    ├── app.json            # Expo config (package & bundleIdentifier: com.fetleepi.nexusimpact)
-    ├── eas.json            # EAS build profiles for Android development APK
-    ├── tsconfig.json       # TypeScript configuration extending expo/tsconfig.base
-    ├── babel.config.js     # Babel config with babel-preset-expo
-    ├── .gitignore          # Ignores node_modules, .env, .expo, dist, .vercel
-    ├── .env.example        # Environment variable template (test_... placeholder)
-    ├── README.md           # Mobile app documentation
-    └── LICENSE             # MIT License
-```
 
 ---
 
