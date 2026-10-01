@@ -86,7 +86,7 @@ export default function ProScreen() {
         <View style={styles.header}>
           <View style={styles.proLabelRow}>
             <Sparkles size={16} color={COLORS.teal} />
-            <Text style={styles.proLabel}>Nexus Pro</Text>
+            <Text style={styles.proLabel}>PREMIUM TIER</Text>
           </View>
           <Text style={styles.title}>Nexus Pro</Text>
           <Text style={styles.subtitle}>

@@ -31,8 +31,12 @@ export const ExpoProjectModal: React.FC<ExpoProjectModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleCopyCode = (text: string, type: 'file' | 'commands') => {
-    navigator.clipboard.writeText(text);
+  const handleCopyCode = async (text: string, type: 'file' | 'commands') => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      // Ignore clipboard write permission errors
+    }
     if (type === 'file') {
       setCopiedFile(true);
       setTimeout(() => setCopiedFile(false), 2000);

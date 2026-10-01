@@ -30,7 +30,7 @@ export async function runAgentSynthesis(
             role: 'user',
             parts: [
               {
-                text: `${agent.systemInstruction}\n\nUser Task: "${userPrompt}"\n\nProvide a structured, expert, publication-grade social impact output with clear headings, bullet points, methodology/standards references, and operational steps.`
+                text: `${agent.systemInstruction || agent.systemPrompt}\n\nUser Task: "${userPrompt}"\n\nProvide a structured, expert, publication-grade social impact output with clear headings, bullet points, methodology/standards references, and operational steps.`
               }
             ]
           }

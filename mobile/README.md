@@ -2,7 +2,13 @@
 
 > Specialized AI agents for social impact, humanitarian relief, and evidence-based development.
 
-**Built for RevenueCat Shipaton 2026 (Next Gen Award)**
+**Built for [RevenueCat Shipaton 2026](https://revenuecat-shipaton-2026.devpost.com) · Next Gen Award**
+
+- **Hackathon**: [RevenueCat Shipaton 2026](https://revenuecat-shipaton-2026.devpost.com)
+- **Track / Award**: Next Gen Award
+- **Public SDK Key**: `test_bxrpYHfEUPnjAzjXewMlpxhMkZv` (RevenueCat Test Store)
+- **Offering**: `default` (Monthly & Annual packages)
+- **Entitlement**: `pro` (Unlocks Pro agents, unlimited directives, and PDF export)
 
 > **Important**: This app must run as a **development build**, not Expo Go, because RevenueCat (`react-native-purchases`) requires native code compiled into the application binary.
 

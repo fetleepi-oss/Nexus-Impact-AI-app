@@ -164,6 +164,8 @@ export const EXPO_FILES: ExpoFile[] = [
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
+    "jsx": "react-jsx",
+    "skipLibCheck": true,
     "paths": {
       "@/*": ["./*"]
     }
@@ -527,7 +529,8 @@ import Purchases, {
   LOG_LEVEL,
 } from 'react-native-purchases';
 
-const REVENUECAT_API_KEY = process.env.EXPO_PUBLIC_REVENUECAT_API_KEY || '';
+const DEFAULT_TEST_KEY = 'test_bxrpYHfEUPnjAzjXewMlpxhMkZv';
+const REVENUECAT_API_KEY = process.env.EXPO_PUBLIC_REVENUECAT_API_KEY || DEFAULT_TEST_KEY;
 
 let isConfigured = false;
 
@@ -543,17 +546,17 @@ export async function configurePurchases(): Promise<void> {
   if (isConfigured) return;
 
   try {
-    if (__DEV__) {
-      await Purchases.setLogLevel(LOG_LEVEL.DEBUG);
-    }
+    Purchases.setLogLevel(LOG_LEVEL.VERBOSE);
 
-    if (REVENUECAT_API_KEY) {
-      if (Platform.OS !== 'web') {
-        Purchases.configure({ apiKey: REVENUECAT_API_KEY });
-        isConfigured = true;
-      }
-    } else {
-      console.warn('[RevenueCat] EXPO_PUBLIC_REVENUECAT_API_KEY not configured.');
+    const iosApiKey = process.env.EXPO_PUBLIC_REVENUECAT_API_KEY || DEFAULT_TEST_KEY;
+    const androidApiKey = process.env.EXPO_PUBLIC_REVENUECAT_API_KEY || DEFAULT_TEST_KEY;
+
+    if (Platform.OS === 'ios') {
+      Purchases.configure({ apiKey: iosApiKey });
+      isConfigured = true;
+    } else if (Platform.OS === 'android') {
+      Purchases.configure({ apiKey: androidApiKey });
+      isConfigured = true;
     }
   } catch (error) {
     console.error('[RevenueCat] configure error:', error);
@@ -1549,7 +1552,7 @@ export default function ProScreen() {
         <View style={styles.header}>
           <View style={styles.proLabelRow}>
             <Sparkles size={16} color={COLORS.teal} />
-            <Text style={styles.proLabel}>Nexus Pro</Text>
+            <Text style={styles.proLabel}>PREMIUM TIER</Text>
           </View>
           <Text style={styles.title}>Nexus Pro</Text>
           <Text style={styles.subtitle}>
@@ -1798,6 +1801,21 @@ export default function SettingsScreen() {
               <Text style={styles.cardTitle}>Membership Status</Text>
               <Text style={styles.cardSub}>
                 {isPro ? 'Nexus Pro Entitlement Active' : 'Free Tier (3 daily generations)'}
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        {/* RevenueCat Shipaton 2026 Hackathon */}
+        <View style={styles.card}>
+          <View style={styles.cardRow}>
+            <View style={styles.iconWrap}>
+              <Sparkles size={20} color="#F59E0B" />
+            </View>
+            <View style={styles.cardTextCol}>
+              <Text style={styles.cardTitle}>RevenueCat Shipaton 2026</Text>
+              <Text style={styles.cardSub}>
+                Built for Shipaton 2026 (Next Gen Award). Integrated with RevenueCat Test Store SDK, "default" offering, and "pro" entitlement.
               </Text>
             </View>
           </View>
@@ -2445,9 +2463,15 @@ const styles = StyleSheet.create({
 
 > Specialized AI agents for social impact, humanitarian missions, and evidence-based development.
 
-**Built for RevenueCat Shipaton 2026 (Next Gen Award)**
+**Built for [RevenueCat Shipaton 2026](https://revenuecat-shipaton-2026.devpost.com) · Next Gen Award**
 
 The Expo app is in the \`/mobile\` folder.
+
+- **Hackathon**: [RevenueCat Shipaton 2026](https://revenuecat-shipaton-2026.devpost.com)
+- **Track / Award**: Next Gen Award
+- **Public SDK Key**: \`test_bxrpYHfEUPnjAzjXewMlpxhMkZv\` (RevenueCat Test Store)
+- **Offering**: \`default\` (Monthly & Annual packages)
+- **Entitlement**: \`pro\` (Unlocks Pro agents, unlimited directives, and PDF export)
 
 > **Important**: This app must run as a **development build**, not Expo Go, because RevenueCat (\`react-native-purchases\`) requires native code compiled into the application binary.
 

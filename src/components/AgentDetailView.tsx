@@ -130,10 +130,14 @@ export const AgentDetailView: React.FC<AgentDetailViewProps> = ({
     }
   };
 
-  const handleCopy = () => {
+  const handleCopy = async () => {
     if (!output) return;
     triggerHaptic('light');
-    navigator.clipboard.writeText(output);
+    try {
+      await navigator.clipboard.writeText(output);
+    } catch {
+      // Ignore clipboard write permission errors
+    }
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };

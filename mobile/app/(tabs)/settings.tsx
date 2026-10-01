@@ -47,6 +47,21 @@ export default function SettingsScreen() {
           </View>
         </View>
 
+        {/* RevenueCat Shipaton 2026 Hackathon */}
+        <View style={styles.card}>
+          <View style={styles.cardRow}>
+            <View style={styles.iconWrap}>
+              <Sparkles size={20} color="#F59E0B" />
+            </View>
+            <View style={styles.cardTextCol}>
+              <Text style={styles.cardTitle}>RevenueCat Shipaton 2026</Text>
+              <Text style={styles.cardSub}>
+                Built for Shipaton 2026 (Next Gen Award). Integrated with RevenueCat Test Store SDK, "default" offering, and "pro" entitlement.
+              </Text>
+            </View>
+          </View>
+        </View>
+
         {/* Zero-Telemetry Notice */}
         <View style={styles.card}>
           <View style={styles.cardRow}>
