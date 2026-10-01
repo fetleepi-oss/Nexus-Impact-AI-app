@@ -5,6 +5,7 @@ import {
   Sparkles,
   Settings as SettingsIcon,
   Code2,
+  
   Smartphone,
   Monitor,
   ArrowRight
