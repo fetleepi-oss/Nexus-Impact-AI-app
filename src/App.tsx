@@ -1,23 +1,3 @@
-import { Platform } from 'react-native';
-import { useEffect } from 'react';
-import Purchases, { LOG_LEVEL } from 'react-native-purchases';
-
-export default function App() {
-  useEffect(() => {
-    Purchases.setLogLevel(LOG_LEVEL.VERBOSE);
-
-    // Platform-specific API keys
-    const iosApiKey = 'test_bxrpYHfEUPnjAzjXewMlpxhMkZv';
-    const androidApiKey = 'test_bxrpYHfEUPnjAzjXewMlpxhMkZv';
-
-    if (Platform.OS === 'ios') {
-       Purchases.configure({apiKey: iosApiKey});
-    } else if (Platform.OS === 'android') {
-       Purchases.configure({apiKey: androidApiKey});
-    }
-  }, []);
-}
-
 import React, { useState, useEffect } from 'react';
 import {
   LayoutGrid,
@@ -69,17 +49,12 @@ function MainApp() {
   const [historyItems, setHistoryItems] = useState<StoredHistoryItem[]>([]);
   const [historyRefreshKey, setHistoryRefreshKey] = useState(0);
   const [paywallReason, setPaywallReason] = useState<string | null>(null);
-const [offerings, setOfferings] = useState<any>(null);
+
   // Check onboarding status and load AsyncStorage history
   useEffect(() => {
     async function initApp() {
       // Check onboarding
-       try {
-  const offerings = await Purchases.getOfferings();
-  setOfferings(offerings);
-} catch (e) {
-  console.error("Error fetching offerings", e);
-}
+      try {
         const completed = await AsyncStorage.getItem(ONBOARDING_KEY);
         if (!completed) {
           setShowOnboarding(true);

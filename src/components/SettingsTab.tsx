@@ -26,6 +26,27 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({ onExportData, onReplay
         </p>
       </div>
 
+      {/* RevenueCat Shipaton 2026 Entry */}
+      <div className="p-4 rounded-xl bg-gradient-to-br from-[#0F1A36] to-[#132347] border border-amber-500/30 space-y-2.5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-amber-400" />
+            <span className="text-xs font-bold text-slate-100">RevenueCat Shipaton 2026</span>
+          </div>
+          <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/30">
+            Next Gen Award
+          </span>
+        </div>
+        <p className="text-[11px] text-slate-300 leading-relaxed">
+          Integrated with RevenueCat Test Store public SDK (<code className="text-teal-300 text-[10px]">test_bxrpYHfE...</code>), default offering (Monthly & Annual), and active <code className="text-teal-300 text-[10px]">pro</code> entitlement gating.
+        </p>
+        <div className="pt-0.5 flex flex-wrap items-center gap-2 text-[10px] text-slate-400 font-mono">
+          <span className="px-2 py-0.5 rounded bg-[#070D1E] text-slate-300 border border-[#1E2F5B]">Offering: default</span>
+          <span className="px-2 py-0.5 rounded bg-[#070D1E] text-slate-300 border border-[#1E2F5B]">Entitlement: pro</span>
+          <span className="px-2 py-0.5 rounded bg-[#070D1E] text-slate-300 border border-[#1E2F5B]">SDK: react-native-purchases 8.5.0</span>
+        </div>
+      </div>
+
       {/* Field Operations & Offline Mode */}
       <div className="space-y-3">
         <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">

@@ -8,7 +8,8 @@ import Purchases, {
   LOG_LEVEL,
 } from 'react-native-purchases';
 
-const REVENUECAT_API_KEY = process.env.EXPO_PUBLIC_REVENUECAT_API_KEY || '';
+const DEFAULT_TEST_KEY = 'test_bxrpYHfEUPnjAzjXewMlpxhMkZv';
+const REVENUECAT_API_KEY = process.env.EXPO_PUBLIC_REVENUECAT_API_KEY || DEFAULT_TEST_KEY;
 
 let isConfigured = false;
 
@@ -24,17 +25,17 @@ export async function configurePurchases(): Promise<void> {
   if (isConfigured) return;
 
   try {
-    if (__DEV__) {
-      await Purchases.setLogLevel(LOG_LEVEL.DEBUG);
-    }
+    Purchases.setLogLevel(LOG_LEVEL.VERBOSE);
 
-    if (REVENUECAT_API_KEY) {
-      if (Platform.OS !== 'web') {
-        Purchases.configure({ apiKey: REVENUECAT_API_KEY });
-        isConfigured = true;
-      }
-    } else {
-      console.warn('[RevenueCat] EXPO_PUBLIC_REVENUECAT_API_KEY not configured.');
+    const iosApiKey = process.env.EXPO_PUBLIC_REVENUECAT_API_KEY || DEFAULT_TEST_KEY;
+    const androidApiKey = process.env.EXPO_PUBLIC_REVENUECAT_API_KEY || DEFAULT_TEST_KEY;
+
+    if (Platform.OS === 'ios') {
+      Purchases.configure({ apiKey: iosApiKey });
+      isConfigured = true;
+    } else if (Platform.OS === 'android') {
+      Purchases.configure({ apiKey: androidApiKey });
+      isConfigured = true;
     }
   } catch (error) {
     console.error('[RevenueCat] configure error:', error);
