@@ -1,23 +1,3 @@
-import { Platform } from 'react-native';
-import { useEffect } from 'react';
-import Purchases, { LOG_LEVEL } from 'react-native-purchases';
-
-export default function App() {
-  useEffect(() => {
-    Purchases.setLogLevel(LOG_LEVEL.VERBOSE);
-
-    // Platform-specific API keys
-    const iosApiKey = 'test_bxrpYHfEUPnjAzjXewMlpxhMkZv';
-    const androidApiKey = 'test_bxrpYHfEUPnjAzjXewMlpxhMkZv';
-
-    if (Platform.OS === 'ios') {
-       Purchases.configure({apiKey: iosApiKey});
-    } else if (Platform.OS === 'android') {
-       Purchases.configure({apiKey: androidApiKey});
-    }
-  }, []);
-}
-
 import React, { useState, useEffect } from 'react';
 import {
   LayoutGrid,
@@ -27,8 +7,6 @@ import {
   Code2,
   Smartphone,
   Monitor,
-  Lock,
-  Zap,
   ArrowRight
 } from 'lucide-react';
 import { AGENTS, getAgentById, AgentConfig } from './data/agents';
@@ -52,6 +30,28 @@ import { triggerHaptic } from './lib/haptics';
 type TabType = 'agents' | 'history' | 'pro' | 'settings';
 const ONBOARDING_KEY = '@nexus_onboarding_completed';
 
+const SEED_PROPOSAL = `# Grant Proposal: Rural Maternal Healthcare Acceleration
+
+## 1. Problem Statement
+Maternal mortality rates in remote rural catchments remain 3.8x above national targets due to a lack of transport corridors and basic obstetric diagnostics.
+
+## 2. Project Objectives
+- Equip 24 primary clinics with calibrated obstetric drapes and WHO E-MOTIVE bundles within 12 months.
+- Establish subsidized motorcycle ambulance referral vouchers for 3,500 pregnant women.
+
+## 3. Implementation Activities
+- WP 1: Training 180 Community Midwives.
+- WP 2: Cold-chain and emergency medicine distribution.
+
+## 4. Budget Outline
+- Direct Programmatic Interventions: $540,000 (60%)
+- Personnel & Field Midwives: $225,000 (25%)
+- Indirect Administration: $135,000 (15%)
+- Total: $900,000
+
+## 5. Monitoring & Evaluation (M&E)
+- Indicator 1: % of obstetric hemorrhage cases treated within 60 minutes (Target: >= 92%).`;
+
 function MainApp() {
   const { isPro } = usePurchases();
   const {
@@ -69,40 +69,37 @@ function MainApp() {
   const [historyItems, setHistoryItems] = useState<StoredHistoryItem[]>([]);
   const [historyRefreshKey, setHistoryRefreshKey] = useState(0);
   const [paywallReason, setPaywallReason] = useState<string | null>(null);
-const [offerings, setOfferings] = useState<any>(null);
-  // Check onboarding status and load AsyncStorage history
+
   useEffect(() => {
     async function initApp() {
-      // Check onboarding
-       try {
-  const offerings = await Purchases.getOfferings();
-  setOfferings(offerings);
-} catch (e) {
-  console.error("Error fetching offerings", e);
-}
+      try {
         const completed = await AsyncStorage.getItem(ONBOARDING_KEY);
         if (!completed) {
           setShowOnboarding(true);
         }
       } catch (e) {
-        // Fallback
+        // ignore
       }
 
-      // Load history
-      const stored = await getHistoryFromStorage();
-      if (stored.length === 0) {
-        await saveHistoryToStorage(
-          'grant-proposal',
-          'Grant Proposal',
-          'Draft USAID structured grant for rural maternal healthcare network',
-          `# Grant Proposal: Rural Maternal Healthcare Acceleration\n\n## 1. Problem Statement\nMaternal mortality rates in remote rural catchments remain 3.8x above national targets due to a lack of transport corridors and basic obstetric diagnostics.\n\n## 2. Project Objectives\n- Equip 24 primary clinics with calibrated obstetric drapes and WHO E-MOTIVE bundles within 12 months.\n- Establish subsidized motorcycle ambulance referral vouchers for 3,500 pregnant women.\n\n## 3. Implementation Activities\n- WP 1: Training 180 Community Midwives.\n- WP 2: Cold-chain and emergency medicine distribution.\n\n## 4. Budget Outline\n- Direct Programmatic Interventions: $540,000 (60%)\n- Personnel & Field Midwives: $225,000 (25%)\n- Indirect Administration: $135,000 (15%)\n- Total: $900,000\n\n## 5. Monitoring & Evaluation (M&E)\n- Indicator 1: % of obstetric hemorrhage cases treated within 60 minutes (Target: >= 92%).`
-        );
-        const refreshed = await getHistoryFromStorage();
-        setHistoryItems(refreshed);
-      } else {
-        setHistoryItems(stored);
+      try {
+        const stored = await getHistoryFromStorage();
+        if (stored.length === 0) {
+          await saveHistoryToStorage(
+            'grant-proposal',
+            'Grant Proposal',
+            'Draft USAID structured grant for rural maternal healthcare network',
+            SEED_PROPOSAL
+          );
+          const refreshed = await getHistoryFromStorage();
+          setHistoryItems(refreshed);
+        } else {
+          setHistoryItems(stored);
+        }
+      } catch (e) {
+        // ignore
       }
     }
+
     initApp();
   }, [historyRefreshKey]);
 
@@ -115,6 +112,14 @@ const [offerings, setOfferings] = useState<any>(null);
     }
   };
 
+  const handleOpenPaywall = (reason: string) => {
+    triggerHaptic('medium');
+    setPaywallReason(reason);
+    setCurrentTab('pro');
+    setActiveAgentId(null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleOpenAgent = (id: string) => {
     triggerHaptic('light');
     if (isAgentProOnly(id) && !isPro) {
@@ -122,17 +127,8 @@ const [offerings, setOfferings] = useState<any>(null);
       handleOpenPaywall(`Unlock ${agent?.name || 'this agent'} with Nexus Pro`);
       return;
     }
-
     setActiveAgentId(id);
     setCurrentTab('agents');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleOpenPaywall = (reason: string) => {
-    triggerHaptic('medium');
-    setPaywallReason(reason);
-    setCurrentTab('pro');
-    setActiveAgentId(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -144,12 +140,8 @@ const [offerings, setOfferings] = useState<any>(null);
   const handleTabChange = (tab: TabType) => {
     triggerHaptic('light');
     setCurrentTab(tab);
-    if (tab !== 'agents') {
-      setActiveAgentId(null);
-    }
-    if (tab !== 'pro') {
-      setPaywallReason(null);
-    }
+    if (tab !== 'agents') setActiveAgentId(null);
+    if (tab !== 'pro') setPaywallReason(null);
   };
 
   const handleHistoryUpdated = async () => {
@@ -163,7 +155,6 @@ const [offerings, setOfferings] = useState<any>(null);
       handleOpenPaywall('Unlock full data archive export with Nexus Pro');
       return;
     }
-
     const currentHist = await getHistoryFromStorage();
     const data = {
       app: 'Nexus Impact AI',
@@ -186,12 +177,17 @@ const [offerings, setOfferings] = useState<any>(null);
 
   const currentAgent = activeAgentId ? getAgentById(activeAgentId) : null;
 
+  const tabClass = (tab: TabType) =>
+    `flex-1 flex flex-col items-center justify-center py-1 transition-colors min-h-[44px] cursor-pointer ${
+      currentTab === tab
+        ? 'text-teal-400 font-semibold'
+        : 'text-slate-400 hover:text-slate-200'
+    }`;
+
   return (
     <div className="min-h-screen bg-[#070D1E] text-slate-100 flex flex-col font-sans selection:bg-teal-500/30 selection:text-teal-200">
-      {/* Top Bar Navigation */}
       <header className="sticky top-0 z-40 bg-[#070D1E]/90 backdrop-blur-md border-b border-[#1E2F5B]/80 px-4 sm:px-8 py-3">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          {/* Zone 1: Single text element wordmark + PRO badge */}
           <div className="flex items-center gap-2.5">
             <span className="text-base sm:text-lg font-bold tracking-tight text-slate-100">
               Nexus Impact AI
@@ -203,7 +199,9 @@ const [offerings, setOfferings] = useState<any>(null);
               </span>
             ) : (
               <button
-                onClick={() => handleOpenPaywall('Upgrade to Nexus Pro for unlimited generations & PDF export')}
+                onClick={() =>
+                  handleOpenPaywall('Upgrade to Nexus Pro for unlimited generations & PDF export')
+                }
                 className="px-1.5 py-0.5 text-[10px] font-bold rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 tracking-wider flex items-center gap-1 cursor-pointer transition-colors"
               >
                 <span>Free Plan</span>
@@ -214,7 +212,6 @@ const [offerings, setOfferings] = useState<any>(null);
             </span>
           </div>
 
-          {/* Zone 2: Navigation / Canvas View switch */}
           <div className="flex items-center gap-2">
             <button
               onClick={() => {
@@ -237,7 +234,6 @@ const [offerings, setOfferings] = useState<any>(null);
               )}
             </button>
 
-            {/* Zone 3: Primary action */}
             <button
               onClick={() => {
                 triggerHaptic('medium');
@@ -252,7 +248,6 @@ const [offerings, setOfferings] = useState<any>(null);
         </div>
       </header>
 
-      {/* Main Content Area */}
       <main className="flex-1 flex justify-center py-4 sm:py-8 px-2 sm:px-6">
         <div
           className={`w-full transition-all duration-300 ${
@@ -262,7 +257,6 @@ const [offerings, setOfferings] = useState<any>(null);
           }`}
           style={{ minHeight: isDeviceFrame ? '840px' : 'auto' }}
         >
-          {/* Mobile Status Bar Simulation */}
           {isDeviceFrame && (
             <div className="hidden sm:flex items-center justify-between px-7 pt-3.5 pb-2 text-[11px] font-mono text-slate-400 border-b border-[#1E2F5B]/30 select-none">
               <span>9:41</span>
@@ -274,11 +268,9 @@ const [offerings, setOfferings] = useState<any>(null);
             </div>
           )}
 
-          {/* Screen Content Viewport */}
           <div className="flex-1 p-4 sm:p-5 overflow-y-auto pb-24">
             {currentTab === 'agents' ? (
               activeAgentId && currentAgent ? (
-                /* Dynamic Agent Route: /agent/[id] */
                 <AgentDetailView
                   agent={currentAgent}
                   isPro={isPro}
@@ -290,7 +282,6 @@ const [offerings, setOfferings] = useState<any>(null);
                   savedItems={historyItems}
                 />
               ) : (
-                /* Home Screen: Header, Remaining Generations Banner, & 2-Column Grid of 7 Agent Cards */
                 <div className="space-y-4 animate-in fade-in duration-200">
                   <div className="flex items-start justify-between pb-1">
                     <div>
@@ -311,7 +302,6 @@ const [offerings, setOfferings] = useState<any>(null);
                     </div>
                   </div>
 
-                  {/* Free Generations Remaining Indicator / Pro Status Banner */}
                   {isPro ? (
                     <div className="p-3 rounded-xl bg-teal-950/30 border border-teal-500/30 flex items-center justify-between text-xs">
                       <div className="flex items-center gap-2 text-teal-300 font-medium">
@@ -353,13 +343,11 @@ const [offerings, setOfferings] = useState<any>(null);
                     </div>
                   )}
 
-                  {/* 2-Column Grid */}
                   <div className="grid grid-cols-2 gap-3 pt-1">
                     {AGENTS.map((agent: AgentConfig, index: number) => {
                       const isFullWidth =
                         index === AGENTS.length - 1 && AGENTS.length % 2 !== 0;
                       const isLocked = isAgentProOnly(agent.id) && !isPro;
-
                       return (
                         <AgentCard
                           key={agent.id}
@@ -403,60 +391,28 @@ const [offerings, setOfferings] = useState<any>(null);
             )}
           </div>
 
-          {/* Bottom Tab Bar (Agents, History, Pro, Settings) */}
           <nav
             className={`${
               isDeviceFrame ? 'absolute' : 'sticky'
             } bottom-0 left-0 right-0 h-16 bg-[#0A1226]/95 backdrop-blur-md border-t border-[#1E2F5B] z-30 px-3 flex items-center justify-around select-none`}
             aria-label="Bottom Navigation"
           >
-            <button
-              onClick={() => handleTabChange('agents')}
-              className={`flex-1 flex flex-col items-center justify-center py-1 transition-colors min-h-[44px] cursor-pointer ${
-                currentTab === 'agents'
-                  ? 'text-teal-400 font-semibold'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
+            <button onClick={() => handleTabChange('agents')} className={tabClass('agents')}>
               <LayoutGrid className="w-5 h-5 mb-1" />
               <span className="text-[10px] tracking-tight">Agents</span>
             </button>
-
-            <button
-              onClick={() => handleTabChange('history')}
-              className={`flex-1 flex flex-col items-center justify-center py-1 transition-colors min-h-[44px] cursor-pointer ${
-                currentTab === 'history'
-                  ? 'text-teal-400 font-semibold'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
+            <button onClick={() => handleTabChange('history')} className={tabClass('history')}>
               <Clock className="w-5 h-5 mb-1" />
               <span className="text-[10px] tracking-tight">History</span>
             </button>
-
-            <button
-              onClick={() => handleTabChange('pro')}
-              className={`flex-1 flex flex-col items-center justify-center py-1 transition-colors min-h-[44px] cursor-pointer relative ${
-                currentTab === 'pro'
-                  ? 'text-teal-400 font-semibold'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
+            <button onClick={() => handleTabChange('pro')} className={tabClass('pro')}>
               <Sparkles className="w-5 h-5 mb-1" />
               <span className="text-[10px] tracking-tight flex items-center gap-1">
                 <span>Pro</span>
                 {isPro && <span className="w-1.5 h-1.5 rounded-full bg-teal-400" />}
               </span>
             </button>
-
-            <button
-              onClick={() => handleTabChange('settings')}
-              className={`flex-1 flex flex-col items-center justify-center py-1 transition-colors min-h-[44px] cursor-pointer ${
-                currentTab === 'settings'
-                  ? 'text-teal-400 font-semibold'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
+            <button onClick={() => handleTabChange('settings')} className={tabClass('settings')}>
               <SettingsIcon className="w-5 h-5 mb-1" />
               <span className="text-[10px] tracking-tight">Settings</span>
             </button>
@@ -464,17 +420,8 @@ const [offerings, setOfferings] = useState<any>(null);
         </div>
       </main>
 
-      {/* Expo Project Code & Run Modal */}
-      <ExpoProjectModal
-        isOpen={showExpoModal}
-        onClose={() => setShowExpoModal(false)}
-      />
-
-      {/* Simple Onboarding Modal */}
-      <OnboardingModal
-        isOpen={showOnboarding}
-        onComplete={handleCompleteOnboarding}
-      />
+      <ExpoProjectModal isOpen={showExpoModal} onClose={() => setShowExpoModal(false)} />
+      <OnboardingModal isOpen={showOnboarding} onComplete={handleCompleteOnboarding} />
     </div>
   );
 }
